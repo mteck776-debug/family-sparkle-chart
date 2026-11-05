@@ -492,6 +492,7 @@ function meter(label, [a, b], jump) {
 }
 function adultsView() {
   const ti = dayIdx(P.now), focus = cfg.weekly[ti], fp = progress(focus.tasks, P.week);
+  const dp = progress(cfg.daily, P.today), dayDone = dp[1] > 0 && dp[0] === dp[1];
   const weeks = cfg.weekly.map((d, i) => `<div class="dayblock ${i === ti ? 'now' : ''}">
     ${editing ? `<input class="edit" id="area-${i}" aria-label="${DAY[i]} focus" data-area="${i}" value="${esc(d.area)}">`
       : `<h3>${DAY[i]} <span>· ${esc(d.area)}</span></h3>`}
@@ -505,7 +506,7 @@ function adultsView() {
       ${meter('Quarterly', progress(cfg.quarterly, P.season), 'sec-quarterly')}
     </div>
     <div class="cols">
-      <section class="sect" id="sec-daily"><h2>Daily</h2><p class="sub">About 20 minutes between you. Fresh list every morning.</p>${listHtml(P.today, 'daily')}</section>
+      <section class="sect" id="sec-daily"><h2>Daily</h2><p class="sub">${dayDone ? '🏆 Day complete! Fresh list tomorrow morning.' : 'About 20 minutes between you. Fresh list every morning.'}</p>${listHtml(P.today, 'daily')}</section>
       <section class="sect" id="sec-monthly"><h2>Monthly</h2><p class="sub">${P.now.toLocaleDateString('en-AU', { month: 'long' })} · ${left(P.monthEnd)}. Do one or two each week.</p>${listHtml(P.month, 'monthly')}</section>
       <section class="sect weekly" id="sec-weekly"><h2>Weekly</h2><p class="sub">One area a day, so nothing piles up. Resets Monday · ${left(P.sunday)}.</p><div class="weekgrid">${weeks}</div></section>
       <section class="sect weekly" id="sec-quarterly"><h2>Quarterly</h2><p class="sub">Once a season · ${P.s.name} ends ${P.s.end.toLocaleDateString('en-AU', { day: 'numeric', month: 'long' })} · ${left(P.s.end)}.</p>${listHtml(P.season, 'quarterly')}</section>
@@ -666,10 +667,19 @@ document.addEventListener('change', e => {
     const was = progress(ls, key);
     setTick(key, c.dataset.tid, c.checked);
     const now = progress(ls, key);
+    const box = c.getBoundingClientRect();
     render();
-    if (c.checked && now[0] === now[1] && was[0] !== was[1]) {
-      burst(innerWidth / 2, innerHeight * .35, 110);
+    if (!c.checked) return;
+    const finished = now[0] === now[1] && was[0] !== was[1];
+    if (finished && list === 'daily') {
+      party({ buddy: '🏆' }, 'Day complete!', 'Every daily job is done. Time to put your feet up.');
+      say('Day complete! Great work!');
+    } else if (finished) {
+      burst(innerWidth / 2, innerHeight * .35, 130);
       notes([[659, 0], [880, .14], [1047, .28]]);
+    } else {
+      burst(box.left + box.width / 2, box.top + box.height / 2, 50);
+      notes([[784 + now[0] * 12, 0]]);
     }
   }
 });
