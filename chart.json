@@ -1,6 +1,102 @@
 {
  "ticks": {},
  "cfg": {
+  "kids": [
+   {
+    "name": "Theo",
+    "buddy": "🦖",
+    "tasks": [
+     {
+      "id": "bed",
+      "e": "🛏️",
+      "t": "Pull up my doona"
+     },
+     {
+      "id": "dress",
+      "e": "👕",
+      "t": "Get dressed by myself"
+     },
+     {
+      "id": "wash",
+      "e": "🧺",
+      "t": "Dirty clothes in the basket"
+     },
+     {
+      "id": "teeth",
+      "e": "🦷",
+      "t": "Brush my teeth"
+     },
+     {
+      "id": "toys",
+      "e": "🧸",
+      "t": "Pack away my toys"
+     },
+     {
+      "id": "plate",
+      "e": "🍽️",
+      "t": "Plate on the bench"
+     }
+    ]
+   },
+   {
+    "name": "Leia",
+    "buddy": "🦄",
+    "tasks": [
+     {
+      "id": "bed",
+      "e": "🛏️",
+      "t": "Help pull up my doona"
+     },
+     {
+      "id": "wash",
+      "e": "🧺",
+      "t": "Clothes in the basket"
+     },
+     {
+      "id": "toys",
+      "e": "🧸",
+      "t": "Toys in the tub"
+     },
+     {
+      "id": "cup",
+      "e": "🥤",
+      "t": "Cup on the bench"
+     }
+    ]
+   }
+  ],
+  "special": [
+   {
+    "e": "🧦",
+    "t": "Match the socks"
+   },
+   {
+    "e": "🧽",
+    "t": "Wipe the low cupboards with a wet cloth"
+   },
+   {
+    "e": "🌱",
+    "t": "Water the plants"
+   },
+   {
+    "e": "🧤",
+    "t": "Dust with a sock on my hand"
+   },
+   {
+    "e": "🍽️",
+    "t": "Wipe the table"
+   },
+   {
+    "e": "🍂",
+    "t": "Pick up sticks and toys in the yard"
+   },
+   {
+    "e": "📚",
+    "t": "Put the books on the shelf"
+   }
+  ],
+  "reward": "mteck776-debug",
+  "rewardDays": 5,
   "adults": [
    "Mum",
    "Dad"
@@ -45,236 +141,6 @@
     "id": "d8",
     "t": "Empty lunchboxes and kids' bags",
     "who": 0
-   }
-  ],
-  "kids": [
-   {
-    "buddy": "🦖",
-    "name": "Theo",
-    "tasks": [
-     {
-      "e": "🛏️",
-      "id": "bed",
-      "t": "Pull up my doona"
-     },
-     {
-      "e": "👕",
-      "id": "dress",
-      "t": "Get dressed by myself"
-     },
-     {
-      "e": "🧺",
-      "id": "wash",
-      "t": "Dirty clothes in the basket"
-     },
-     {
-      "e": "🦷",
-      "id": "teeth",
-      "t": "Brush my teeth"
-     },
-     {
-      "e": "🧸",
-      "id": "toys",
-      "t": "Pack away my toys"
-     },
-     {
-      "e": "🍽️",
-      "id": "plate",
-      "t": "Plate on the bench"
-     }
-    ]
-   },
-   {
-    "buddy": "🦄",
-    "name": "Leia",
-    "tasks": [
-     {
-      "e": "🛏️",
-      "id": "bed",
-      "t": "Help pull up my doona"
-     },
-     {
-      "e": "🧺",
-      "id": "wash",
-      "t": "Clothes in the basket"
-     },
-     {
-      "e": "🧸",
-      "id": "toys",
-      "t": "Toys in the tub"
-     },
-     {
-      "e": "🥤",
-      "id": "cup",
-      "t": "Cup on the bench"
-     }
-    ]
-   }
-  ],
-  "monthly": [
-   {
-    "id": "m1",
-    "t": "Clean the oven and stovetop grates",
-    "who": 0
-   },
-   {
-    "id": "m2",
-    "t": "Empty and wipe fridge shelves",
-    "who": 0
-   },
-   {
-    "id": "m3",
-    "t": "Clean rangehood filter",
-    "who": 0
-   },
-   {
-    "id": "m4",
-    "t": "Clean dishwasher and washing machine filters",
-    "who": 0
-   },
-   {
-    "id": "m5",
-    "t": "Dust ceiling fans and light fittings",
-    "who": 0
-   },
-   {
-    "id": "m6",
-    "t": "Wipe skirting boards and door frames",
-    "who": 0
-   },
-   {
-    "id": "m7",
-    "t": "Vacuum the couch and under cushions",
-    "who": 0
-   },
-   {
-    "id": "m8",
-    "t": "Vacuum mattresses",
-    "who": 0
-   },
-   {
-    "id": "m9",
-    "t": "Clean inside windows and sliding door tracks",
-    "who": 0
-   },
-   {
-    "id": "m10",
-    "t": "Wash and sanitise bath toys",
-    "who": 0
-   },
-   {
-    "id": "m11",
-    "t": "Sort toys and fix or donate the broken ones",
-    "who": 0
-   },
-   {
-    "id": "m12",
-    "t": "Wash out the wheelie bins",
-    "who": 0
-   },
-   {
-    "id": "m13",
-    "t": "Weed garden beds and tip out standing water",
-    "who": 0
-   },
-   {
-    "id": "m14",
-    "t": "Check the shed for spiders and pests",
-    "who": 0
-   }
-  ],
-  "quarterly": [
-   {
-    "id": "q1",
-    "t": "Wash outside windows and flyscreens",
-    "who": 0
-   },
-   {
-    "id": "q2",
-    "t": "Wash curtains or wipe blinds",
-    "who": 0
-   },
-   {
-    "id": "q3",
-    "t": "Clean air-con filters",
-    "who": 0
-   },
-   {
-    "id": "q4",
-    "t": "Pull out fridge and stove, clean behind",
-    "who": 0
-   },
-   {
-    "id": "q5",
-    "t": "Rotate mattresses, wash doonas and pillows",
-    "who": 0
-   },
-   {
-    "id": "q6",
-    "t": "Clear the gutters",
-    "who": 0
-   },
-   {
-    "id": "q7",
-    "t": "Test smoke alarms and restock the first aid kit",
-    "who": 0
-   },
-   {
-    "id": "q8",
-    "t": "Sort wardrobes and outgrown kids' clothes",
-    "who": 0
-   },
-   {
-    "id": "q9",
-    "t": "Clear out pantry and check use-by dates",
-    "who": 0
-   },
-   {
-    "id": "q10",
-    "t": "Clean the BBQ and outdoor furniture",
-    "who": 0
-   },
-   {
-    "id": "q11",
-    "t": "Pressure wash paths and driveway",
-    "who": 0
-   },
-   {
-    "id": "q12",
-    "t": "Full shed sort, chemicals up high and locked away",
-    "who": 0
-   }
-  ],
-  "reward": "Aracade",
-  "rewardDays": 5,
-  "special": [
-   {
-    "e": "🧦",
-    "t": "Match the socks"
-   },
-   {
-    "e": "🧽",
-    "t": "Wipe the low cupboards with a wet cloth"
-   },
-   {
-    "e": "🌱",
-    "t": "Water the plants"
-   },
-   {
-    "e": "🧤",
-    "t": "Dust with a sock on my hand"
-   },
-   {
-    "e": "🍽️",
-    "t": "Wipe the table"
-   },
-   {
-    "e": "🍂",
-    "t": "Pick up sticks and toys in the yard"
-   },
-   {
-    "e": "📚",
-    "t": "Put the books on the shelf"
    }
   ],
   "weekly": [
@@ -452,6 +318,140 @@
       "who": 0
      }
     ]
+   }
+  ],
+  "monthly": [
+   {
+    "id": "m1",
+    "t": "Clean the oven and stovetop grates",
+    "who": 0
+   },
+   {
+    "id": "m2",
+    "t": "Empty and wipe fridge shelves",
+    "who": 0
+   },
+   {
+    "id": "m3",
+    "t": "Clean rangehood filter",
+    "who": 0
+   },
+   {
+    "id": "m4",
+    "t": "Clean dishwasher and washing machine filters",
+    "who": 0
+   },
+   {
+    "id": "m5",
+    "t": "Dust ceiling fans and light fittings",
+    "who": 0
+   },
+   {
+    "id": "m6",
+    "t": "Wipe skirting boards and door frames",
+    "who": 0
+   },
+   {
+    "id": "m7",
+    "t": "Vacuum the couch and under cushions",
+    "who": 0
+   },
+   {
+    "id": "m8",
+    "t": "Vacuum mattresses",
+    "who": 0
+   },
+   {
+    "id": "m9",
+    "t": "Clean inside windows and sliding door tracks",
+    "who": 0
+   },
+   {
+    "id": "m10",
+    "t": "Wash and sanitise bath toys",
+    "who": 0
+   },
+   {
+    "id": "m11",
+    "t": "Sort toys and fix or donate the broken ones",
+    "who": 0
+   },
+   {
+    "id": "m12",
+    "t": "Wash out the wheelie bins",
+    "who": 0
+   },
+   {
+    "id": "m13",
+    "t": "Weed garden beds and tip out standing water",
+    "who": 0
+   },
+   {
+    "id": "m14",
+    "t": "Check the shed for spiders and pests",
+    "who": 0
+   }
+  ],
+  "quarterly": [
+   {
+    "id": "q1",
+    "t": "Wash outside windows and flyscreens",
+    "who": 0
+   },
+   {
+    "id": "q2",
+    "t": "Wash curtains or wipe blinds",
+    "who": 0
+   },
+   {
+    "id": "q3",
+    "t": "Clean air-con filters",
+    "who": 0
+   },
+   {
+    "id": "q4",
+    "t": "Pull out fridge and stove, clean behind",
+    "who": 0
+   },
+   {
+    "id": "q5",
+    "t": "Rotate mattresses, wash doonas and pillows",
+    "who": 0
+   },
+   {
+    "id": "q6",
+    "t": "Clear the gutters",
+    "who": 0
+   },
+   {
+    "id": "q7",
+    "t": "Test smoke alarms and restock the first aid kit",
+    "who": 0
+   },
+   {
+    "id": "q8",
+    "t": "Sort wardrobes and outgrown kids' clothes",
+    "who": 0
+   },
+   {
+    "id": "q9",
+    "t": "Clear out pantry and check use-by dates",
+    "who": 0
+   },
+   {
+    "id": "q10",
+    "t": "Clean the BBQ and outdoor furniture",
+    "who": 0
+   },
+   {
+    "id": "q11",
+    "t": "Pressure wash paths and driveway",
+    "who": 0
+   },
+   {
+    "id": "q12",
+    "t": "Full shed sort, chemicals up high and locked away",
+    "who": 0
    }
   ]
  }
