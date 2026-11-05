@@ -23,7 +23,7 @@ Each device connects once with a fine-grained access token:
 
 The token stays on that device and is never written to the repo. Offline changes wait on the device and save when it reconnects.
 
-**The repo must be private.** `chart.json` holds your family's names, so the chart will not save while the repo is public.
+This repo is public, so anyone can read `chart.json` on the `data` branch and its history, including first names and which jobs were ticked and when. Only someone with a token can change it.
 
 ## Android app
 

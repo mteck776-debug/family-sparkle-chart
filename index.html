@@ -358,8 +358,6 @@ async function verify() {
   try {
     const res = await gh(API);
     if (!res.ok) { warn = problem(res); setStatus(); return false; }
-    const repo = await res.json();
-    if (!repo.private) { warn = 'Saving is paused because this repo is public and the chart holds your family\'s names. Make the repo private, then reopen the chart.'; setStatus(); return false; }
     warn = ''; ready = true; ghState = 'ok'; setStatus(); return true;
   } catch { ghState = 'offline'; setStatus(); return false; }
 }
@@ -633,7 +631,6 @@ document.addEventListener('click', e => {
     verify().then(async ok => {
       $('#gh-msg').textContent = ok ? 'Connected. This device now saves to GitHub.' : (warn || 'Can\'t reach GitHub. Check the internet connection and try again.');
       if (ok) { try { localStorage.setItem('sparkle-gh-token', token); } catch {} $('#gh-token').value = ''; await pull(); schedule(500); }
-      else if (warn.startsWith('Saving is paused')) { try { localStorage.setItem('sparkle-gh-token', token); } catch {} }
       else { token = ''; try { localStorage.removeItem('sparkle-gh-token'); } catch {} }
     });
   }
