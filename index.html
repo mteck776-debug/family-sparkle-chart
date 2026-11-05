@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Family Sparkle Chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&display=swap">
+<style>
+/* Layout: a fridge sticker chart. Kids get chunky press-in tiles and a star track; grown-ups get a calm four-part checklist. */
+:root {
+  --sky: #e6f3fb; --paper: #ffffff; --ink: #17324d; --muted: #52697f; --line: #bcd3e3;
+  --sun: #ffc53d; --sun-soft: #fff0c4; --coral: #ff7a59; --coral-soft: #ffe3da;
+  --lagoon: #2aa9b8; --lagoon-soft: #d3f1f3; --leaf: #1f8a5a; --leaf-soft: #d9f3e5;
+  --on-bright: #17324d; --edge: #17324d;
+  --display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --sky: #0f2234; --paper: #182f45; --ink: #ecf5fb; --muted: #a6bccd; --line: #34506a;
+  --sun-soft: #4b3f1a; --coral-soft: #4d2c26; --lagoon-soft: #173f49; --leaf: #5fd39c; --leaf-soft: #1b4336;
+  --edge: #06121d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --sky: #0f2234; --paper: #182f45; --ink: #ecf5fb; --muted: #a6bccd; --line: #34506a;
+  --sun-soft: #4b3f1a; --coral-soft: #4d2c26; --lagoon-soft: #173f49; --leaf: #5fd39c; --leaf-soft: #1b4336;
+  --edge: #06121d; color-scheme: dark }
+
+html, body { margin: 0 }
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { background: var(--sky); color: var(--ink); font: 400 16px/1.45 var(--body); -webkit-tap-highlight-color: transparent }
+button, input, select { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 3px solid var(--lagoon); outline-offset: 2px }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px }
+
+header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between }
+h1 { margin: 0; font: 700 clamp(1.7rem, 4vw, 2.3rem)/1.1 var(--display); text-wrap: balance }
+.date { color: var(--muted); font-weight: 600 }
+.tools { display: flex; flex-wrap: wrap; gap: 8px }
+.tool { background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: .9rem }
+.tool[aria-pressed="true"] { background: var(--sun); color: var(--on-bright); border-color: var(--sun) }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.tab { font: 600 1.25rem var(--display); padding: 12px; border-radius: 16px; background: var(--paper); border: 2.5px solid var(--edge) }
+.tab[aria-selected="true"] { background: var(--sun); color: var(--on-bright); box-shadow: 0 4px 0 var(--edge) }
+
+/* Kids */
+.kids { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; align-items: start }
+.kid { --tone: var(--coral); --soft: var(--coral-soft); background: var(--paper); border: 3px solid var(--edge); border-radius: 26px; padding: 16px; display: grid; gap: 14px; min-width: 0 }
+.kid.b { --tone: var(--lagoon); --soft: var(--lagoon-soft) }
+.kidhead { display: flex; gap: 12px; align-items: center; background: var(--tone); color: var(--on-bright); border-radius: 18px; padding: 8px 14px }
+.buddy { font-size: 3.1rem; line-height: 1; display: inline-block }
+.buddy.bounce { animation: bounce .8s ease }
+.kidhead h2 { margin: 0; font: 700 1.7rem/1.1 var(--display) }
+.kidhead p { margin: 0; font-weight: 800 }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px }
+.tile { position: relative; min-height: 132px; padding: 10px; border: 3px solid var(--edge); border-radius: 20px; background: var(--soft);
+  box-shadow: 0 6px 0 var(--edge); display: grid; justify-items: center; align-content: center; gap: 4px; text-align: center; transition: transform .08s, box-shadow .08s }
+.tile.main { width: 100%; font-weight: 800 }
+.slot { position: relative; min-width: 0 }
+.slot.special { grid-column: 1 / -1 }
+.slot.special .tile { background: var(--sun-soft); min-height: 112px }
+.tag { font: 600 .8rem var(--display); letter-spacing: .04em; text-transform: uppercase; color: var(--muted) }
+.pic { font-size: 3.2rem; line-height: 1.1 }
+.tlabel { font: 600 1.08rem/1.2 var(--display) }
+.tile:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge) }
+.tile.done { background: var(--leaf-soft); }
+.tile.done .pic { opacity: .55 }
+.stamp { position: absolute; top: 6px; left: 8px; font-size: 2.3rem; line-height: 1 }
+.tile.fresh .stamp { animation: stamp .55s cubic-bezier(.2, 1.6, .4, 1) }
+.undo { position: absolute; top: 8px; right: 8px; background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 2px 9px; font-size: .78rem; font-weight: 700; color: var(--muted); z-index: 1 }
+.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px }
+.day { display: grid; justify-items: center; gap: 2px; font: 600 .78rem var(--display); color: var(--muted) }
+.dot { width: 100%; max-width: 44px; aspect-ratio: 1; border-radius: 50%; border: 2px dashed var(--line); display: grid; place-items: center; font-size: 1rem; color: var(--ink) }
+.day.today .dot { border: 3px solid var(--tone) }
+.day.full .dot { border-style: solid; border-color: var(--sun); background: var(--sun-soft); font-size: 1.35rem }
+.track { display: grid; gap: 6px }
+.trackrow { display: flex; justify-content: space-between; gap: 10px; font-weight: 800; align-items: baseline; flex-wrap: wrap }
+.trackrow .n { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 700 }
+.bar { height: 18px; background: var(--sky); border: 2px solid var(--edge); border-radius: 999px; overflow: hidden }
+.bar i { display: block; height: 100%; background: var(--sun); transition: width .5s }
+.note { color: var(--muted); font-size: .9rem; margin: 0; max-width: 70ch }
+
+/* Grown-ups */
+.focusbar { background: var(--sun); color: var(--on-bright); border-radius: 18px; padding: 12px 18px; font-weight: 700 }
+.focusbar b { font: 600 1.25rem var(--display) }
+.meters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px }
+.meter { text-align: left; background: var(--paper); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; min-width: 0 }
+.meter span { font: 600 1rem var(--display) }
+.meter small { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums }
+.meter em { display: block; height: 7px; border-radius: 9px; background: var(--sky); overflow: hidden }
+.meter em i { display: block; height: 100%; background: var(--leaf) }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 20px; align-items: start }
+.sect { background: var(--paper); border-radius: 18px; padding: 16px 18px; min-width: 0 }
+.sect h2 { margin: 0; font: 600 1.45rem/1.2 var(--display) }
+.sub { margin: 2px 0 8px; color: var(--muted); font-size: .92rem }
+.weekly { grid-column: 1 / -1 }
+#sec-quarterly .list { columns: 2 300px; column-gap: 28px }
+#sec-quarterly .row { break-inside: avoid }
+.weekgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 14px 24px }
+.dayblock { min-width: 0; padding: 8px 10px; border-radius: 12px }
+.dayblock.now { background: var(--sun-soft) }
+.dayblock h3 { margin: 0 0 2px; font: 600 1.08rem var(--display) }
+.dayblock h3 span { color: var(--muted); font-weight: 500 }
+ul.list { list-style: none; margin: 0; padding: 0 }
+.row { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); padding: 2px 0; min-width: 0 }
+.row label { display: flex; gap: 10px; align-items: center; flex: 1; min-width: 0; padding: 7px 0; cursor: pointer }
+.row input[type="checkbox"] { width: 22px; height: 22px; flex: none; accent-color: var(--leaf); margin: 0 }
+.row.done label span { color: var(--muted); text-decoration: line-through }
+.who { flex: none; border: 1.5px solid var(--line); background: transparent; border-radius: 999px; padding: 2px 10px; font-size: .8rem; font-weight: 700; color: var(--muted); max-width: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.who.a { background: var(--coral-soft); color: var(--ink); border-color: var(--coral) }
+.who.b { background: var(--lagoon-soft); color: var(--ink); border-color: var(--lagoon) }
+
+/* Edit mode */
+.edit { flex: 1; min-width: 0; width: 100%; padding: 7px 9px; border: 1.5px solid var(--line); border-radius: 9px; background: var(--paper) }
+.edit.emoji { flex: none; width: 3.4em; text-align: center; font-size: 1.3rem }
+.del { flex: none; border: 0; background: var(--coral-soft); color: var(--ink); border-radius: 9px; padding: 7px 10px; font-weight: 800 }
+.add { margin-top: 8px; border: 1.5px dashed var(--line); background: transparent; border-radius: 10px; padding: 7px 12px; font-weight: 700 }
+.edittile { background: var(--soft); border: 2px solid var(--line); border-radius: 14px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+
+footer { color: var(--muted); font-size: .9rem; display: grid; gap: 4px }
+#status[data-warn] { color: var(--ink); background: var(--coral-soft); padding: 8px 12px; border-radius: 10px; font-weight: 700 }
+
+dialog { border: 3px solid var(--edge); border-radius: 22px; background: var(--paper); color: var(--ink); max-width: min(520px, calc(100vw - 32px)); width: 100%; padding: 20px }
+dialog::backdrop { background: rgb(10 25 40 / .55) }
+dialog h2 { margin: 0 0 10px; font: 600 1.5rem var(--display) }
+.form { display: grid; gap: 12px }
+.form label { display: grid; gap: 3px; font-weight: 700; font-size: .92rem }
+.form input, .form select { padding: 9px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--sky); width: 100%; font-weight: 400 }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+.close { margin-top: 14px; width: 100%; background: var(--sun); color: var(--on-bright); border: 2.5px solid var(--edge); border-radius: 14px; padding: 10px; font: 600 1.1rem var(--display) }
+
+/* Celebrations */
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40 }
+#cheer { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 41; pointer-events: none;
+  display: flex; align-items: center; gap: 10px; background: var(--sun); color: var(--on-bright); border: 3px solid var(--edge); border-radius: 999px; padding: 8px 22px; font: 700 1.4rem var(--display); white-space: nowrap; max-width: calc(100vw - 32px) }
+#cheer .buddy { font-size: 2.2rem }
+#cheer:not([hidden]) { animation: pop .35s cubic-bezier(.2, 1.6, .4, 1) }
+#party { position: fixed; inset: 0; z-index: 39; background: rgb(10 25 40 / .72); display: grid; place-items: center; padding: 16px }
+.partycard { background: var(--sun); color: var(--on-bright); border: 4px solid var(--edge); border-radius: 30px; padding: 26px 24px; max-width: 460px; width: 100%; text-align: center; display: grid; gap: 8px; justify-items: center }
+.partycard .buddy { font-size: 6.5rem; animation: bounce 1s ease infinite }
+.partycard h2 { margin: 0; font: 700 2.1rem/1.1 var(--display); text-wrap: balance }
+.partycard p { margin: 0; font-weight: 800; font-size: 1.1rem }
+.partycard button { margin-top: 8px; background: var(--paper); color: var(--ink); border: 3px solid var(--edge); border-radius: 16px; padding: 10px 30px; font: 700 1.3rem var(--display) }
+@keyframes bounce { 0%, 100% { transform: translateY(0) rotate(0) } 30% { transform: translateY(-16px) rotate(-8deg) } 60% { transform: translateY(-5px) rotate(7deg) } }
+@keyframes stamp { from { transform: scale(3) rotate(-30deg); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pop { from { transform: translateX(-50%) scale(.5) } to { transform: translateX(-50%) scale(1) } }
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important } }
+@media (max-width: 560px) { .meters { grid-template-columns: repeat(2, minmax(0, 1fr)) } .pic { font-size: 2.8rem } .tile { min-height: 122px } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Family Sparkle Chart</h1>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="tools">
+      <button class="tool" id="btn-sound" data-act="sound" aria-pressed="true">Sound on</button>
+      <button class="tool" id="btn-names" data-act="names">Names &amp; rewards</button>
+      <button class="tool" id="btn-edit" data-act="edit" aria-pressed="false">Edit jobs</button>
+    </div>
+  </header>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tab-kids" role="tab" data-act="tab" data-v="kids">Kids</button>
+    <button class="tab" id="tab-adults" role="tab" data-act="tab" data-v="grown-ups">Grown-ups</button>
+  </div>
+  <main id="view"></main>
+  <footer><div id="status" aria-live="polite"></div></footer>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlg-t">
+  <h2 id="dlg-t">Names &amp; rewards</h2>
+  <div class="form">
+    <div class="two">
+      <label>Age 5 child's name <input id="k0-name" data-cfg="k0name" maxlength="20"></label>
+      <label>Buddy <select id="k0-buddy" data-cfg="k0buddy"></select></label>
+    </div>
+    <div class="two">
+      <label>Age 3 child's name <input id="k1-name" data-cfg="k1name" maxlength="20"></label>
+      <label>Buddy <select id="k1-buddy" data-cfg="k1buddy"></select></label>
+    </div>
+    <div class="two">
+      <label>Grown-up 1 <input id="a0-name" data-cfg="a0" maxlength="14"></label>
+      <label>Grown-up 2 <input id="a1-name" data-cfg="a1" maxlength="14"></label>
+    </div>
+    <label>Weekly reward <input id="reward" data-cfg="reward" maxlength="50"></label>
+    <label>Full days of stars needed each week
+      <select id="reward-days" data-cfg="rewardDays">
+        <option value="3">3 days</option><option value="4">4 days</option><option value="5">5 days</option><option value="6">6 days</option><option value="7">7 days</option>
+      </select>
+    </label>
+  </div>
+  <button class="close" id="dlg-close" data-act="closedlg">Done</button>
+</dialog>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div id="cheer" role="status" hidden></div>
+<div id="party" hidden></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const t = (id, text, who = 0) => ({ id, t: text, who });
+const k = (id, e, text) => ({ id, e, t: text });
+
+const DEFAULTS = {
+  kids: [
+    { name: 'Koala', buddy: '🐨', tasks: [
+      k('bed', '🛏️', 'Pull up my doona'), k('dress', '👕', 'Get dressed by myself'),
+      k('wash', '🧺', 'Dirty clothes in the basket'), k('teeth', '🦷', 'Brush my teeth'),
+      k('toys', '🧸', 'Pack away my toys'), k('plate', '🍽️', 'Plate on the bench') ] },
+    { name: 'Roo', buddy: '🦘', tasks: [
+      k('bed', '🛏️', 'Help pull up my doona'), k('wash', '🧺', 'Clothes in the basket'),
+      k('toys', '🧸', 'Toys in the tub'), k('cup', '🥤', 'Cup on the bench') ] }
+  ],
+  special: [
+    { e: '🧦', t: 'Match the socks' }, { e: '🧽', t: 'Wipe the low cupboards with a wet cloth' },
+    { e: '🌱', t: 'Water the plants' }, { e: '🧤', t: 'Dust with a sock on my hand' },
+    { e: '🍽️', t: 'Wipe the table' }, { e: '🍂', t: 'Pick up sticks and toys in the yard' },
+    { e: '📚', t: 'Put the books on the shelf' }
+  ],
+  reward: 'Pick the family movie',
+  rewardDays: 5,
+  adults: ['Grown-up 1', 'Grown-up 2'],
+  daily: [
+    t('d1', 'Dishes done, benches wiped'), t('d2', 'Wipe stovetop and table'),
+    t('d3', 'Sweep kitchen and dining floor'), t('d4', 'One load of washing on and hung out'),
+    t('d5', 'Living room and toy reset'), t('d6', 'Quick wipe of bathroom basin and toilet seat'),
+    t('d7', 'Empty the kitchen bin if full'), t('d8', 'Empty lunchboxes and kids\' bags')
+  ],
+  weekly: [
+    { area: 'Bathrooms', tasks: [t('w01', 'Scrub the toilet'), t('w02', 'Clean shower and screen'), t('w03', 'Basin, taps and mirror'), t('w04', 'Wash bath mats and hand towels')] },
+    { area: 'Floors', tasks: [t('w11', 'Vacuum all three bedrooms'), t('w12', 'Vacuum hallway and living areas'), t('w13', 'Mop kitchen, bathroom and laundry')] },
+    { area: 'Bedrooms', tasks: [t('w21', 'Change sheets on all beds'), t('w22', 'Wash the towels'), t('w23', 'Tidy all three bedrooms'), t('w24', 'Put away the clean clothes pile')] },
+    { area: 'Kitchen', tasks: [t('w31', 'Wipe inside the microwave'), t('w32', 'Clear old food from the fridge'), t('w33', 'Wipe cupboard fronts and handles'), t('w34', 'Scrub the sink and wash the bin')] },
+    { area: 'Dust and living', tasks: [t('w41', 'Dust shelves and TV unit'), t('w42', 'Wipe door handles, switches and remotes'), t('w43', 'Wipe little handprints off doors and glass'), t('w44', 'Put the bins out on bin night')] },
+    { area: 'Yard and shed', tasks: [t('w51', 'Mow and edge the lawn'), t('w52', 'Sweep paths and patio'), t('w53', 'Water pots and garden beds'), t('w54', 'Put outdoor toys away'), t('w55', 'Sweep the shed and put tools back')] },
+    { area: 'Reset for the week', tasks: [t('w61', 'Fold and put away the last washing'), t('w62', 'Plan meals and shopping'), t('w63', 'Pack school and kindy bags'), t('w64', 'Clear rubbish out of the cars')] }
+  ],
+  monthly: [
+    t('m1', 'Clean the oven and stovetop grates'), t('m2', 'Empty and wipe fridge shelves'),
+    t('m3', 'Clean rangehood filter'), t('m4', 'Clean dishwasher and washing machine filters'),
+    t('m5', 'Dust ceiling fans and light fittings'), t('m6', 'Wipe skirting boards and door frames'),
+    t('m7', 'Vacuum the couch and under cushions'), t('m8', 'Vacuum mattresses'),
+    t('m9', 'Clean inside windows and sliding door tracks'), t('m10', 'Wash and sanitise bath toys'),
+    t('m11', 'Sort toys and fix or donate the broken ones'), t('m12', 'Wash out the wheelie bins'),
+    t('m13', 'Weed garden beds and tip out standing water'), t('m14', 'Check the shed for spiders and pests')
+  ],
+  quarterly: [
+    t('q1', 'Wash outside windows and flyscreens'), t('q2', 'Wash curtains or wipe blinds'),
+    t('q3', 'Clean air-con filters'), t('q4', 'Pull out fridge and stove, clean behind'),
+    t('q5', 'Rotate mattresses, wash doonas and pillows'), t('q6', 'Clear the gutters'),
+    t('q7', 'Test smoke alarms and restock the first aid kit'), t('q8', 'Sort wardrobes and outgrown kids\' clothes'),
+    t('q9', 'Clear out pantry and check use-by dates'), t('q10', 'Clean the BBQ and outdoor furniture'),
+    t('q11', 'Pressure wash paths and driveway'), t('q12', 'Full shed sort, chemicals up high and locked away')
+  ]
+};
+const BUDDIES = [['🐨','Koala'],['🦘','Kangaroo'],['🐢','Turtle'],['🦖','Dinosaur'],['🦄','Unicorn'],['🐬','Dolphin'],['🦜','Parrot'],['🐸','Frog'],['🐶','Puppy'],['🐱','Kitten'],['🚒','Fire truck'],['🚀','Rocket']];
+const DAY = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const PRAISE = ['Well done, %!','Super job, %!','You did it, %!','Great helping, %!','Another star for %!','Way to go, %!'];
+const MINE = 'sparkle-chart-v1';
+
+/* ---------- state ---------- */
+let cfg = structuredClone(DEFAULTS), T = {}, soundOn = true;
+let editing = false, view = location.hash === '#grown-ups' ? 'grown-ups' : 'kids';
+let fresh = null, bounceKid = null, readOnly = false, deviceOnly = false, warn = '';
+try {
+  const s = JSON.parse(localStorage.getItem(MINE) || '{}');
+  if (s.cfg) cfg = { ...cfg, ...s.cfg };
+  if (s.T) T = s.T;
+  if (s.soundOn === false) soundOn = false;
+} catch {}
+const cache = () => { try { localStorage.setItem(MINE, JSON.stringify({ cfg, T, soundOn })); } catch {} };
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const dayIdx = d => (d.getDay() + 6) % 7;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+function season(d) {
+  const m = d.getMonth(), y = d.getFullYear();
+  if (m === 11) return { name: 'Summer', key: `${y}-summer`, end: new Date(y + 1, 2, 0) };
+  if (m < 2) return { name: 'Summer', key: `${y - 1}-summer`, end: new Date(y, 2, 0) };
+  if (m < 5) return { name: 'Autumn', key: `${y}-autumn`, end: new Date(y, 5, 0) };
+  if (m < 8) return { name: 'Winter', key: `${y}-winter`, end: new Date(y, 8, 0) };
+  return { name: 'Spring', key: `${y}-spring`, end: new Date(y, 11, 0) };
+}
+function periods() {
+  const now = new Date(), mon = addDays(now, -dayIdx(now)), s = season(now);
+  const days = [...Array(7)].map((_, i) => 'd-' + ymd(addDays(mon, i)));
+  return { now, days, today: days[dayIdx(now)], week: 'w-' + ymd(mon), month: `m-${now.getFullYear()}-${pad(now.getMonth() + 1)}`,
+    season: 's-' + s.key, s, monthEnd: new Date(now.getFullYear(), now.getMonth() + 1, 0), sunday: addDays(mon, 6) };
+}
+let P = periods();
+const left = end => { const n = Math.round((new Date(end.getFullYear(), end.getMonth(), end.getDate()) - new Date(P.now.getFullYear(), P.now.getMonth(), P.now.getDate())) / 864e5); return n === 0 ? 'Last day' : n === 1 ? '1 day left' : n + ' days left'; };
+
+/* ---------- saving ---------- */
+const dbP = (window.claude && claude.use) ? claude.use('db').catch(() => null) : Promise.resolve(null);
+const queues = {}, pending = {};
+function setStatus() {
+  const el = $('#status');
+  if (warn) { el.textContent = warn; el.setAttribute('data-warn', ''); return; }
+  el.removeAttribute('data-warn');
+  el.textContent = deviceOnly ? 'Stars and ticks are saving on this device only.' : 'Stars and ticks save to this chart, so every phone and tablet that opens it stays in step.';
+}
+function fail(e) {
+  if (e && e.code === 'quota_exceeded') warn = 'The chart has run out of saving space, so this tick was not saved.';
+  else if (e && e.code === 'invalid_argument') { readOnly = true; warn = 'You can view this chart, but ticks won\'t save. Ask the owner to share it with you as a Contributor.'; }
+  else warn = 'That tick did not save. Check the internet connection and tap it again.';
+  setStatus();
+}
+async function retry(fn) {
+  try { return await fn(); }
+  catch (e) {
+    if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); return fn(); }
+    throw e;
+  }
+}
+function saveTick(key, id, val) {
+  pending[key] = (pending[key] || 0) + 1;
+  queues[key] = (queues[key] || Promise.resolve()).then(async () => {
+    const db = await dbP;
+    if (!db || readOnly) return;
+    const ref = db.doc('ticks/' + key);
+    try { await retry(() => ref.update({ [id]: val })); }
+    catch (e) {
+      if (e && e.code === 'invalid_argument') await retry(() => ref.set({ ...T[key] }));
+      else throw e;
+    }
+  }).catch(fail).finally(() => { pending[key]--; });
+}
+let cfgTimer, cfgDirty = false;
+function saveCfg() {
+  cfgDirty = true;
+  cache();
+  clearTimeout(cfgTimer);
+  cfgTimer = setTimeout(async () => {
+    const db = await dbP;
+    if (!db || readOnly) { cfgDirty = false; return; }
+    const sent = JSON.stringify(cfg);
+    try { await retry(() => db.doc('config/main').set(JSON.parse(sent))); } catch (e) { fail(e); }
+    if (JSON.stringify(cfg) === sent) cfgDirty = false;
+  }, 700);
+}
+let unsubs = [], loadTimer;
+async function subscribe() {
+  const db = await dbP;
+  if (!db) { deviceOnly = true; setStatus(); return; }
+  deviceOnly = false; setStatus();
+  unsubs.forEach(u => u()); unsubs = [];
+  clearTimeout(loadTimer);
+  loadTimer = setTimeout(() => { warn = 'Can\'t reach the saved chart yet, so ticks may be out of date.'; setStatus(); }, 10000);
+  const settled = () => { clearTimeout(loadTimer); if (warn.startsWith('Can\'t reach')) { warn = ''; setStatus(); } };
+  const onErr = e => { if (e.code !== 'revoked') fail(e); };
+  [...P.days, P.week, P.month, P.season].forEach(key => {
+    unsubs.push(db.doc('ticks/' + key).onSnapshot(s => {
+      if (!s.metadata.fromCache) settled();
+      if (pending[key] > 0 || s.metadata.hasPendingWrites) return;
+      if (!s.exists && s.metadata.fromCache) return;
+      T[key] = s.exists ? { ...s.data() } : {};
+      cache(); softRender();
+    }, onErr));
+  });
+  unsubs.push(db.doc('config/main').onSnapshot(s => {
+    if (!s.exists || s.metadata.hasPendingWrites) return;
+    if (cfgDirty) return;
+    cfg = { ...cfg, ...JSON.parse(JSON.stringify(s.data())) };
+    cache(); softRender();
+  }, onErr));
+}
+function softRender() { const a = document.activeElement; if (editing && a && a.classList.contains('edit')) return; if ($('#dlg').open) return; render(); }
+
+/* ---------- helpers ---------- */
+const on = (key, id) => !!(T[key] && T[key][id]);
+function setTick(key, id, val) { T[key] = { ...(T[key] || {}), [id]: val }; cache(); if (!readOnly) saveTick(key, id, val); }
+const dailyCount = (key, i) => Object.entries(T[key] || {}).filter(([id, v]) => v && id.startsWith(`k${i}_`)).length;
+const kidJobs = i => [{ ...cfg.special[dayIdx(P.now)], id: 'sp', special: true }, ...cfg.kids[i].tasks];
+function listOf(name) {
+  if (name[0] === 'w' && /^w\d$/.test(name)) return cfg.weekly[+name[1]].tasks;
+  if (name.startsWith('kid')) return cfg.kids[+name[3]].tasks;
+  return cfg[name];
+}
+const allWeekly = () => cfg.weekly.flatMap(d => d.tasks);
+const progress = (list, key) => [list.filter(x => on(key, x.id)).length, list.length];
+
+/* ---------- kids view ---------- */
+function kidTile(i, job) {
+  const key = P.today, id = `k${i}_${job.id}`, done = on(key, id);
+  if (editing) {
+    const src = job.special ? `sp` : `kid${i}`;
+    return `<div class="slot ${job.special ? 'special' : ''}"><div class="edittile">
+      <input class="edit emoji" id="e-${i}-${job.id}-e" aria-label="Picture" data-list="${src}" data-id="${esc(job.id)}" data-f="e" value="${esc(job.e)}">
+      <input class="edit" id="e-${i}-${job.id}-t" aria-label="Job" data-list="${src}" data-id="${esc(job.id)}" data-f="t" value="${esc(job.t)}">
+      ${job.special ? '' : `<button class="del" data-act="del" data-list="${src}" data-id="${esc(job.id)}" aria-label="Remove ${esc(job.t)}">✕</button>`}
+    </div></div>`;
+  }
+  return `<div class="slot ${job.special ? 'special' : ''}">
+    <button class="tile main ${done ? 'done' : ''} ${fresh === id ? 'fresh' : ''}" data-act="job" data-kid="${i}" data-id="${esc(id)}">
+      ${done ? '<span class="stamp">⭐</span>' : ''}
+      ${job.special ? `<span class="tag">Today's special job</span>` : ''}
+      <span class="pic">${esc(job.e)}</span><span class="tlabel">${esc(job.t)}</span>
+    </button>
+    ${done ? `<button class="undo" data-act="undo" data-id="${esc(id)}" aria-label="Undo ${esc(job.t)}">undo</button>` : ''}
+  </div>`;
+}
+function kidPanel(i) {
+  const kid = cfg.kids[i], jobs = kidJobs(i), n = jobs.length, today = dailyCount(P.today, i);
+  const stars = P.days.reduce((s, key) => s + dailyCount(key, i), 0);
+  const target = Math.max(1, cfg.rewardDays * n), pct = Math.min(100, stars / target * 100);
+  const todayIdx = dayIdx(P.now);
+  const week = P.days.map((key, d) => {
+    const c = dailyCount(key, i), full = c >= n && n > 0;
+    return `<div class="day ${d === todayIdx ? 'today' : ''} ${full ? 'full' : ''}"><div class="dot">${full ? '⭐' : c || ''}</div>${DAY[d].slice(0, 3)}</div>`;
+  }).join('');
+  return `<section class="kid ${i ? 'b' : ''}" aria-label="${esc(kid.name)}'s jobs">
+    <div class="kidhead"><span class="buddy ${bounceKid === i ? 'bounce' : ''}">${esc(kid.buddy)}</span>
+      <div><h2>${esc(kid.name)}</h2><p>${today >= n ? 'All done today!' : `${today} of ${n} stars today`}</p></div></div>
+    <div class="tiles">${jobs.map(j => kidTile(i, j)).join('')}</div>
+    ${editing ? `<button class="add" id="add-kid${i}" data-act="add" data-list="kid${i}">Add a job</button>` : ''}
+    <div class="days">${week}</div>
+    <div class="track">
+      <div class="trackrow"><span>🎁 ${esc(cfg.reward)}</span><span class="n">${Math.min(stars, target)} of ${target} stars</span></div>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${target}" aria-valuenow="${Math.min(stars, target)}" aria-label="Stars towards this week's reward"><i style="width:${pct}%"></i></div>
+    </div>
+  </section>`;
+}
+function kidsView() {
+  return `<div class="kids">${kidPanel(0)}${kidPanel(1)}</div>
+    <p class="note" style="margin-top:14px">Kids' jobs use water and a cloth only. Stars start fresh every Monday. Tap <b>undo</b> if a star went on by mistake.</p>`;
+}
+
+/* ---------- grown-ups view ---------- */
+function row(key, x, list) {
+  if (editing) return `<li class="row"><input class="edit" id="e-${esc(x.id)}" aria-label="Task" data-list="${list}" data-id="${esc(x.id)}" data-f="t" value="${esc(x.t)}">
+    <button class="del" data-act="del" data-list="${list}" data-id="${esc(x.id)}" aria-label="Remove ${esc(x.t)}">✕</button></li>`;
+  const done = on(key, x.id), who = x.who || 0;
+  return `<li class="row ${done ? 'done' : ''}">
+    <label><input type="checkbox" id="c-${esc(x.id)}" data-key="${key}" data-tid="${esc(x.id)}" data-list="${list}" ${done ? 'checked' : ''}><span>${esc(x.t)}</span></label>
+    <button class="who ${who === 1 ? 'a' : who === 2 ? 'b' : ''}" data-act="who" data-list="${list}" data-id="${esc(x.id)}" title="Change who does this">${esc(who ? cfg.adults[who - 1] : 'Either')}</button>
+  </li>`;
+}
+const listHtml = (key, list) => `<ul class="list">${listOf(list).map(x => row(key, x, list)).join('')}</ul>${editing ? `<button class="add" id="add-${list}" data-act="add" data-list="${list}">Add a task</button>` : ''}`;
+function meter(label, [a, b], jump) {
+  return `<button class="meter" data-act="jump" data-to="${jump}"><span>${label}</span><small>${a} of ${b} done</small><em><i style="width:${b ? a / b * 100 : 0}%"></i></em></button>`;
+}
+function adultsView() {
+  const ti = dayIdx(P.now), focus = cfg.weekly[ti], fp = progress(focus.tasks, P.week);
+  const weeks = cfg.weekly.map((d, i) => `<div class="dayblock ${i === ti ? 'now' : ''}">
+    ${editing ? `<input class="edit" id="area-${i}" aria-label="${DAY[i]} focus" data-area="${i}" value="${esc(d.area)}">`
+      : `<h3>${DAY[i]} <span>· ${esc(d.area)}</span></h3>`}
+    ${listHtml(P.week, 'w' + i)}</div>`).join('');
+  return `<div style="display:grid;gap:16px">
+    <div class="focusbar">Today's focus: <b>${esc(focus.area)}</b> · ${fp[0]} of ${fp[1]} done</div>
+    <div class="meters">
+      ${meter('Daily', progress(cfg.daily, P.today), 'sec-daily')}
+      ${meter('Weekly', progress(allWeekly(), P.week), 'sec-weekly')}
+      ${meter('Monthly', progress(cfg.monthly, P.month), 'sec-monthly')}
+      ${meter('Quarterly', progress(cfg.quarterly, P.season), 'sec-quarterly')}
+    </div>
+    <div class="cols">
+      <section class="sect" id="sec-daily"><h2>Daily</h2><p class="sub">About 20 minutes between you. Fresh list every morning.</p>${listHtml(P.today, 'daily')}</section>
+      <section class="sect" id="sec-monthly"><h2>Monthly</h2><p class="sub">${P.now.toLocaleDateString('en-AU', { month: 'long' })} · ${left(P.monthEnd)}. Do one or two each week.</p>${listHtml(P.month, 'monthly')}</section>
+      <section class="sect weekly" id="sec-weekly"><h2>Weekly</h2><p class="sub">One area a day, so nothing piles up. Resets Monday · ${left(P.sunday)}.</p><div class="weekgrid">${weeks}</div></section>
+      <section class="sect weekly" id="sec-quarterly"><h2>Quarterly</h2><p class="sub">Once a season · ${P.s.name} ends ${P.s.end.toLocaleDateString('en-AU', { day: 'numeric', month: 'long' })} · ${left(P.s.end)}.</p>${listHtml(P.season, 'quarterly')}</section>
+    </div></div>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  $('#date').textContent = P.now.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('#tab-kids').setAttribute('aria-selected', view === 'kids');
+  $('#tab-adults').setAttribute('aria-selected', view !== 'kids');
+  const sb = $('#btn-sound'); sb.textContent = soundOn ? 'Sound on' : 'Sound off'; sb.setAttribute('aria-pressed', soundOn);
+  const eb = $('#btn-edit'); eb.textContent = editing ? 'Finish editing' : 'Edit jobs'; eb.setAttribute('aria-pressed', editing);
+  $('#view').innerHTML = view === 'kids' ? kidsView() : adultsView();
+  setStatus();
+}
+
+/* ---------- celebration ---------- */
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv = $('#fx'), cx = cv.getContext('2d');
+let bits = [], raf = 0;
+function burst(x, y, count) {
+  if (reduced()) return;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const css = getComputedStyle(document.documentElement);
+  const cols = ['--sun', '--coral', '--lagoon', '--leaf'].map(n => css.getPropertyValue(n).trim());
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 9;
+    bits.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5, r: Math.random() * 6, s: 6 + Math.random() * 8, c: cols[i % 4], life: 70 + Math.random() * 40, star: i % 3 === 0 });
+  }
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function star(x, y, r) {
+  cx.beginPath();
+  for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, m = i % 2 ? r * .45 : r; cx.lineTo(x + Math.cos(a) * m, y + Math.sin(a) * m); }
+  cx.closePath(); cx.fill();
+}
+function tick() {
+  cx.clearRect(0, 0, cv.width, cv.height);
+  bits = bits.filter(b => b.life-- > 0);
+  bits.forEach(b => {
+    b.vy += .25; b.x += b.vx; b.y += b.vy; b.vx *= .985;
+    cx.fillStyle = b.c; cx.globalAlpha = Math.min(1, b.life / 25);
+    if (b.star) star(b.x, b.y, b.s); else cx.fillRect(b.x, b.y, b.s, b.s * .6);
+  });
+  cx.globalAlpha = 1;
+  raf = bits.length ? requestAnimationFrame(tick) : 0;
+}
+let ac;
+function notes(list) {
+  if (!soundOn) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    ac.resume();
+    list.forEach(([f, at]) => {
+      const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime + at;
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, s); g.gain.exponentialRampToValueAtTime(.22, s + .02); g.gain.exponentialRampToValueAtTime(.0001, s + .35);
+      o.connect(g).connect(ac.destination); o.start(s); o.stop(s + .4);
+    });
+  } catch {}
+}
+function say(text) {
+  if (!soundOn) return;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-AU'; u.pitch = 1.25; u.rate = 1;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch {}
+}
+let cheerT;
+function cheer(kid, text) {
+  const el = $('#cheer');
+  el.innerHTML = `<span class="buddy bounce">${esc(kid.buddy)}</span><span>${esc(text)}</span>`;
+  el.hidden = true; void el.offsetWidth; el.hidden = false;
+  clearTimeout(cheerT); cheerT = setTimeout(() => { el.hidden = true; }, 2200);
+}
+function party(kid, title, line) {
+  const el = $('#party');
+  clearTimeout(cheerT); $('#cheer').hidden = true;
+  el.innerHTML = `<div class="partycard" role="dialog" aria-label="${esc(title)}"><span class="buddy">${esc(kid.buddy)}</span><h2>${esc(title)}</h2><p>${esc(line)}</p><button id="party-ok" data-act="partyclose">Yay!</button></div>`;
+  el.hidden = false;
+  notes([[523, 0], [659, .14], [784, .28], [1047, .42], [784, .6], [1047, .74]]);
+  [0, 500, 1000, 1600].forEach(ms => setTimeout(() => burst(innerWidth * (.2 + Math.random() * .6), innerHeight * .35, 130), ms));
+  $('#party-ok').focus();
+}
+function doneJob(i, id, tile) {
+  const kid = cfg.kids[i], n = kidJobs(i).length, before = P.days.reduce((s, key) => s + dailyCount(key, i), 0), target = Math.max(1, cfg.rewardDays * n);
+  setTick(P.today, id, true);
+  fresh = id; bounceKid = i;
+  const r = tile.getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top + r.height / 2, 70);
+  render(); fresh = null; bounceKid = null;
+  const count = dailyCount(P.today, i), line = PRAISE[Math.floor(Math.random() * PRAISE.length)].replace('%', kid.name);
+  if (before < target && before + 1 >= target) {
+    party(kid, `${kid.name} earned the reward!`, cfg.reward); say(`Hooray ${kid.name}! You earned your reward! ${cfg.reward}!`);
+  } else if (count >= n) {
+    party(kid, `All done, ${kid.name}!`, 'Every job today has a star.'); say(`Hooray ${kid.name}! You finished all your jobs today!`);
+  } else {
+    notes([[659 + count * 40, 0], [880 + count * 40, .12]]);
+    cheer(kid, line); say(line);
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'tab') { view = b.dataset.v; try { location.hash = view; } catch {} render(); }
+  else if (act === 'sound') { soundOn = !soundOn; cache(); render(); }
+  else if (act === 'edit') { editing = !editing; render(); }
+  else if (act === 'names') openDlg();
+  else if (act === 'closedlg') { $('#dlg').close(); }
+  else if (act === 'partyclose') { $('#party').hidden = true; }
+  else if (act === 'job') {
+    const i = +b.dataset.kid, id = b.dataset.id;
+    if (on(P.today, id)) { const kid = cfg.kids[i]; notes([[880, 0]]); cheer(kid, 'Already got this star!'); }
+    else doneJob(i, id, b);
+  }
+  else if (act === 'undo') { setTick(P.today, b.dataset.id, false); render(); }
+  else if (act === 'who') {
+    const x = listOf(b.dataset.list).find(y => y.id === b.dataset.id);
+    x.who = ((x.who || 0) + 1) % 3; saveCfg(); render();
+  }
+  else if (act === 'jump') { const el = document.getElementById(b.dataset.to); if (el) el.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); }
+  else if (act === 'del') {
+    const l = listOf(b.dataset.list), n = l.findIndex(y => y.id === b.dataset.id);
+    if (n >= 0) { l.splice(n, 1); saveCfg(); render(); }
+  }
+  else if (act === 'add') {
+    const l = listOf(b.dataset.list), id = 'x' + Date.now().toString(36);
+    l.push(b.dataset.list.startsWith('kid') ? { id, e: '⭐', t: 'New job' } : { id, t: 'New task', who: 0 });
+    saveCfg(); render();
+    const el = document.getElementById(b.dataset.list.startsWith('kid') ? `e-${b.dataset.list[3]}-${id}-t` : 'e-' + id);
+    if (el) { el.focus(); el.select(); }
+  }
+});
+document.addEventListener('change', e => {
+  const c = e.target;
+  if (c.matches('input[type="checkbox"][data-tid]')) {
+    const key = c.dataset.key, list = c.dataset.list;
+    const ls = list[0] === 'w' && /^w\d$/.test(list) ? allWeekly() : listOf(list);
+    const was = progress(ls, key);
+    setTick(key, c.dataset.tid, c.checked);
+    const now = progress(ls, key);
+    render();
+    if (c.checked && now[0] === now[1] && was[0] !== was[1]) {
+      burst(innerWidth / 2, innerHeight * .35, 110);
+      notes([[659, 0], [880, .14], [1047, .28]]);
+    }
+  }
+});
+document.addEventListener('input', e => {
+  const f = e.target;
+  if (f.matches('.edit[data-area]')) { cfg.weekly[+f.dataset.area].area = f.value; saveCfg(); return; }
+  if (f.matches('.edit[data-list]')) {
+    if (f.dataset.list === 'sp') cfg.special[dayIdx(P.now)][f.dataset.f] = f.value;
+    else { const x = listOf(f.dataset.list).find(y => y.id === f.dataset.id); if (x) x[f.dataset.f] = f.value; }
+    saveCfg(); return;
+  }
+  if (f.dataset.cfg) {
+    const v = f.value;
+    ({ k0name: () => cfg.kids[0].name = v, k1name: () => cfg.kids[1].name = v, k0buddy: () => cfg.kids[0].buddy = v, k1buddy: () => cfg.kids[1].buddy = v,
+       a0: () => cfg.adults[0] = v, a1: () => cfg.adults[1] = v, reward: () => cfg.reward = v, rewardDays: () => cfg.rewardDays = +v })[f.dataset.cfg]();
+    saveCfg();
+  }
+});
+function openDlg() {
+  const opts = c => BUDDIES.map(([e, n]) => `<option value="${e}" ${e === c ? 'selected' : ''}>${e} ${n}</option>`).join('');
+  $('#k0-buddy').innerHTML = opts(cfg.kids[0].buddy); $('#k1-buddy').innerHTML = opts(cfg.kids[1].buddy);
+  $('#k0-name').value = cfg.kids[0].name; $('#k1-name').value = cfg.kids[1].name;
+  $('#a0-name').value = cfg.adults[0]; $('#a1-name').value = cfg.adults[1];
+  $('#reward').value = cfg.reward; $('#reward-days').value = cfg.rewardDays;
+  $('#dlg').showModal();
+}
+$('#dlg').addEventListener('close', render);
+addEventListener('hashchange', () => { view = location.hash === '#grown-ups' ? 'grown-ups' : 'kids'; render(); });
+setInterval(() => {
+  const n = periods();
+  if (n.today !== P.today) { P = n; render(); subscribe(); }
+}, 60000);
+
+render();
+subscribe();
+})();
+</script>
+</body>
+</html>
