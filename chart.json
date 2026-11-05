@@ -3,12 +3,12 @@
   "d-2026-11-05": {
    "d1": false,
    "d2": false,
-   "d3": true,
-   "d4": true,
-   "d5": true,
-   "d6": true,
-   "d7": true,
-   "d8": true
+   "d3": false,
+   "d4": false,
+   "d5": false,
+   "d6": false,
+   "d7": false,
+   "d8": false
   }
  },
  "cfg": {
