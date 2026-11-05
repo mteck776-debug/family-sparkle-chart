@@ -15,7 +15,8 @@
    "k1_cup": true,
    "k0_toys": true,
    "k1_bed": true,
-   "k0_bed": true
+   "k0_bed": true,
+   "k0_sp": true
   }
  },
  "cfg": {
