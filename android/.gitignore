@@ -1,0 +1,9 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+
+# Signing key: only commit this once the repo is private
+app/family-chart.keystore
