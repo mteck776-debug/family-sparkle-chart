@@ -2,7 +2,7 @@
  "ticks": {
   "d-2026-11-05": {
    "d1": false,
-   "d2": false,
+   "d2": true,
    "d3": false,
    "d4": true,
    "d5": true,
