@@ -1,0 +1,9 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+
+# Signing key: stays out of this public repo
+app/family-chart.keystore

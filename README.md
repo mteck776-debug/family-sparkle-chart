@@ -10,8 +10,21 @@ A cleaning chart for a three-bedroom house with a yard and shed, two adults and 
 
 Use **Names & rewards** to set names, buddies and the reward, and **Edit jobs** to change the job lists.
 
-## Saving
+## Saving to GitHub
 
-Outside Claude, names, ticks and stars are kept in that browser's local storage, so they stay on one device. When the page runs as a Claude artifact, it saves through Claude's `db` capability instead, which keeps devices in step.
+The chart saves to `chart.json` on this repo's `data` branch, so everyday ticks stay out of the code history on `main`. Every device reads and writes that file, and changes made on two devices at once are merged.
 
-Hosting on GitHub Pages needs no build step: publish the root of the `main` branch.
+Each device connects once with a fine-grained access token:
+
+1. On GitHub, go to Settings, Developer settings, then Fine-grained tokens, and generate a new token.
+2. Under repository access, choose only `family-sparkle-chart`.
+3. Under permissions, set Contents to Read and write.
+4. In the chart, tap **GitHub** and paste the token.
+
+The token stays on that device and is never written to the repo. Offline changes wait on the device and save when it reconnects.
+
+This repo is public, so anyone can read `chart.json` on the `data` branch and its history, including first names and which jobs were ticked and when. Only someone with a token can change it.
+
+## Android app
+
+The `android` folder is a small Kotlin app that shows this same `index.html` and uses the phone's voice for the cheers. Open that folder in Android Studio, or build it with `./gradlew assembleRelease`. The build copies in the latest `index.html` automatically.

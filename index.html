@@ -131,6 +131,7 @@ dialog h2 { margin: 0 0 10px; font: 600 1.5rem var(--display) }
 .form label { display: grid; gap: 3px; font-weight: 700; font-size: .92rem }
 .form input, .form select { padding: 9px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--sky); width: 100%; font-weight: 400 }
 .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+.note a { color: inherit; font-weight: 800 }
 .close { margin-top: 14px; width: 100%; background: var(--sun); color: var(--on-bright); border: 2.5px solid var(--edge); border-radius: 14px; padding: 10px; font: 600 1.1rem var(--display) }
 
 /* Celebrations */
@@ -163,6 +164,7 @@ dialog h2 { margin: 0 0 10px; font: 600 1.5rem var(--display) }
       <button class="tool" id="btn-sound" data-act="sound" aria-pressed="true">Sound on</button>
       <button class="tool" id="btn-names" data-act="names">Names &amp; rewards</button>
       <button class="tool" id="btn-edit" data-act="edit" aria-pressed="false">Edit jobs</button>
+      <button class="tool" id="btn-gh" data-act="github">GitHub</button>
     </div>
   </header>
   <div class="tabs" role="tablist">
@@ -196,6 +198,21 @@ dialog h2 { margin: 0 0 10px; font: 600 1.5rem var(--display) }
     </label>
   </div>
   <button class="close" id="dlg-close" data-act="closedlg">Done</button>
+</dialog>
+
+<dialog id="ghd" aria-labelledby="ghd-t">
+  <h2 id="ghd-t">Connect to GitHub</h2>
+  <div class="form">
+    <p class="note">Your chart saves to the <b>family-sparkle-chart</b> repo. Each phone or tablet needs an access token once.</p>
+    <p class="note"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create a token on GitHub</a>. Choose only this repo, and set <b>Contents</b> to <b>Read and write</b>.</p>
+    <label>Access token <input id="gh-token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <p class="note" id="gh-msg" role="status"></p>
+  </div>
+  <div class="two">
+    <button class="close" id="gh-save" data-act="ghsave">Connect</button>
+    <button class="close" id="gh-forget" data-act="ghforget">Disconnect</button>
+  </div>
+  <button class="add" id="gh-close" data-act="ghclose" style="width:100%">Close</button>
 </dialog>
 
 <canvas id="fx" aria-hidden="true"></canvas>
@@ -267,9 +284,9 @@ const PRAISE = ['Well done, %!','Super job, %!','You did it, %!','Great helping,
 const MINE = 'sparkle-chart-v1';
 
 /* ---------- state ---------- */
-let cfg = structuredClone(DEFAULTS), T = {}, soundOn = true;
+let cfg = JSON.parse(JSON.stringify(DEFAULTS)), T = {}, soundOn = true;
 let editing = false, view = location.hash === '#grown-ups' ? 'grown-ups' : 'kids';
-let fresh = null, bounceKid = null, readOnly = false, deviceOnly = false, warn = '';
+let fresh = null, bounceKid = null, warn = '';
 try {
   const s = JSON.parse(localStorage.getItem(MINE) || '{}');
   if (s.cfg) cfg = { ...cfg, ...s.cfg };
@@ -300,85 +317,109 @@ function periods() {
 let P = periods();
 const left = end => { const n = Math.round((new Date(end.getFullYear(), end.getMonth(), end.getDate()) - new Date(P.now.getFullYear(), P.now.getMonth(), P.now.getDate())) / 864e5); return n === 0 ? 'Last day' : n === 1 ? '1 day left' : n + ' days left'; };
 
-/* ---------- saving ---------- */
-const dbP = (window.claude && claude.use) ? claude.use('db').catch(() => null) : Promise.resolve(null);
-const queues = {}, pending = {};
+/* ---------- saving: GitHub is the shared store ---------- */
+const GH = { repo: 'mteck776-debug/family-sparkle-chart', branch: 'data', path: 'chart.json' };
+const API = 'https://api.github.com/repos/' + GH.repo, FILE = `${API}/contents/${GH.path}`;
+const SYNC = 'sparkle-chart-sync-v1';
+let token = '', ops = [], cfgDirty = false, etag = '', ready = false, busy = false, again = false, timer = 0, lastSaved = '', ghState = 'off';
+try { token = localStorage.getItem('sparkle-gh-token') || ''; const q = JSON.parse(localStorage.getItem(SYNC) || '{}'); ops = q.ops || []; cfgDirty = !!q.cfgDirty; } catch {}
+const keepQueue = () => { try { localStorage.setItem(SYNC, JSON.stringify({ ops, cfgDirty })); } catch {} };
+const gh = (url, opt = {}) => fetch(url, { cache: 'no-store', ...opt, headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + token, 'X-GitHub-Api-Version': '2022-11-28', ...(opt.headers || {}) } });
+const toB64 = str => { let b = ''; new TextEncoder().encode(str).forEach(c => b += String.fromCharCode(c)); return btoa(b); };
+const fromB64 = str => new TextDecoder().decode(Uint8Array.from(atob(str.replace(/\s/g, '')), c => c.charCodeAt(0)));
 function setStatus() {
-  const el = $('#status');
-  if (warn) { el.textContent = warn; el.setAttribute('data-warn', ''); return; }
-  el.removeAttribute('data-warn');
-  el.textContent = deviceOnly ? 'Stars and ticks are saving on this device only.' : 'Stars and ticks save to this chart, so every phone and tablet that opens it stays in step.';
+  const el = $('#status'), n = ops.length + (cfgDirty ? 1 : 0);
+  const msg = warn || {
+    off: 'Not connected to GitHub yet, so changes stay on this device. Tap GitHub to connect.',
+    offline: 'Offline. Changes are safe on this device and will save to GitHub when it reconnects.',
+    saving: 'Saving to GitHub…',
+    ok: n ? 'Saving to GitHub…' : lastSaved ? `Saved to GitHub at ${lastSaved}.` : 'Connected to GitHub.'
+  }[ghState];
+  el.textContent = msg;
+  warn ? el.setAttribute('data-warn', '') : el.removeAttribute('data-warn');
 }
-function fail(e) {
-  if (e && e.code === 'quota_exceeded') warn = 'The chart has run out of saving space, so this tick was not saved.';
-  else if (e && e.code === 'invalid_argument') { readOnly = true; warn = 'You can view this chart, but ticks won\'t save. Ask the owner to share it with you as a Contributor.'; }
-  else warn = 'That tick did not save. Check the internet connection and tap it again.';
-  setStatus();
+const stamp = () => new Date().toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
+function problem(res) {
+  if (res.status === 401) return 'GitHub rejected the access token. It may have expired. Tap GitHub and paste a new one.';
+  if (res.status === 403) return 'This token can\'t save to the repo. It needs Contents set to Read and write.';
+  if (res.status === 404) return 'GitHub can\'t find the repo or its data branch with this token.';
+  return `GitHub returned an error (${res.status}). Your changes are kept on this device.`;
 }
-async function retry(fn) {
-  try { return await fn(); }
-  catch (e) {
-    if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); return fn(); }
-    throw e;
+function applyDoc(doc) {
+  if (!doc) return;
+  T = { ...(doc.ticks || {}) };
+  ops.forEach(o => { T[o.key] = { ...(T[o.key] || {}), [o.id]: o.val }; });
+  if (doc.cfg && !cfgDirty) cfg = { ...cfg, ...doc.cfg };
+  cache(); softRender();
+}
+async function verify() {
+  ready = false;
+  if (!token) { ghState = 'off'; warn = ''; setStatus(); return false; }
+  try {
+    const res = await gh(API);
+    if (!res.ok) { warn = problem(res); setStatus(); return false; }
+    warn = ''; ready = true; ghState = 'ok'; setStatus(); return true;
+  } catch { ghState = 'offline'; setStatus(); return false; }
+}
+async function pull() {
+  if (!ready || busy) return;
+  try {
+    const res = await gh(`${FILE}?ref=${GH.branch}`, etag ? { headers: { 'If-None-Match': etag } } : {});
+    if (res.status === 304) return;
+    if (res.status === 404) { if (ops.length || cfgDirty || !lastSaved) schedule(); return; }
+    if (!res.ok) { warn = problem(res); setStatus(); return; }
+    etag = res.headers.get('ETag') || '';
+    const body = await res.json();
+    if (ghState !== 'ok' || warn) { ghState = 'ok'; warn = ''; setStatus(); }
+    applyDoc(JSON.parse(fromB64(body.content)));
+    if (ops.length || cfgDirty) schedule();
+  } catch { ghState = 'offline'; setStatus(); }
+}
+const schedule = (ms = 2500) => { clearTimeout(timer); timer = setTimeout(push, ms); };
+async function push() {
+  if (!ready) { if (await verify()) schedule(0); return; }
+  if (busy) { again = true; return; }
+  if (!ops.length && !cfgDirty) return;
+  busy = true; ghState = 'saving'; setStatus();
+  try {
+    for (let tries = 0; tries < 5; tries++) {
+      const cur = await gh(`${FILE}?ref=${GH.branch}`);
+      if (!cur.ok && cur.status !== 404) { warn = problem(cur); return; }
+      const body = cur.status === 404 ? null : await cur.json();
+      const doc = body ? JSON.parse(fromB64(body.content)) : { ticks: {} };
+      const sentOps = ops.slice(), sentCfg = JSON.stringify(cfg);
+      const ticks = {};
+      [...P.days, P.week, P.month, P.season].forEach(k => { if (doc.ticks && doc.ticks[k]) ticks[k] = { ...doc.ticks[k] }; });
+      sentOps.forEach(o => { ticks[o.key] = { ...(ticks[o.key] || {}), [o.id]: o.val }; });
+      const next = { ticks, cfg: cfgDirty || !doc.cfg ? JSON.parse(sentCfg) : doc.cfg };
+      const res = await gh(FILE, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        message: 'Update chart', branch: GH.branch, content: toB64(JSON.stringify(next, null, 1)), ...(body ? { sha: body.sha } : {}) }) });
+      if (res.status === 409 || res.status === 422) { await new Promise(r => setTimeout(r, 300 + Math.random() * 900)); continue; }
+      if (!res.ok) { warn = problem(res); return; }
+      ops = ops.slice(sentOps.length);
+      if (JSON.stringify(cfg) === sentCfg) cfgDirty = false;
+      keepQueue(); etag = ''; lastSaved = stamp(); ghState = 'ok'; warn = '';
+      applyDoc(next);
+      return;
+    }
+    warn = 'GitHub was busy, so this save will try again shortly.'; schedule(15000);
+  } catch { ghState = 'offline'; }
+  finally {
+    busy = false; setStatus();
+    if (again || (ghState === 'ok' && (ops.length || cfgDirty))) { again = false; schedule(500); }
   }
 }
-function saveTick(key, id, val) {
-  pending[key] = (pending[key] || 0) + 1;
-  queues[key] = (queues[key] || Promise.resolve()).then(async () => {
-    const db = await dbP;
-    if (!db || readOnly) return;
-    const ref = db.doc('ticks/' + key);
-    try { await retry(() => ref.update({ [id]: val })); }
-    catch (e) {
-      if (e && e.code === 'invalid_argument') await retry(() => ref.set({ ...T[key] }));
-      else throw e;
-    }
-  }).catch(fail).finally(() => { pending[key]--; });
-}
-let cfgTimer, cfgDirty = false;
-function saveCfg() {
-  cfgDirty = true;
-  cache();
-  clearTimeout(cfgTimer);
-  cfgTimer = setTimeout(async () => {
-    const db = await dbP;
-    if (!db || readOnly) { cfgDirty = false; return; }
-    const sent = JSON.stringify(cfg);
-    try { await retry(() => db.doc('config/main').set(JSON.parse(sent))); } catch (e) { fail(e); }
-    if (JSON.stringify(cfg) === sent) cfgDirty = false;
-  }, 700);
-}
-let unsubs = [], loadTimer;
-async function subscribe() {
-  const db = await dbP;
-  if (!db) { deviceOnly = true; setStatus(); return; }
-  deviceOnly = false; setStatus();
-  unsubs.forEach(u => u()); unsubs = [];
-  clearTimeout(loadTimer);
-  loadTimer = setTimeout(() => { warn = 'Can\'t reach the saved chart yet, so ticks may be out of date.'; setStatus(); }, 10000);
-  const settled = () => { clearTimeout(loadTimer); if (warn.startsWith('Can\'t reach')) { warn = ''; setStatus(); } };
-  const onErr = e => { if (e.code !== 'revoked') fail(e); };
-  [...P.days, P.week, P.month, P.season].forEach(key => {
-    unsubs.push(db.doc('ticks/' + key).onSnapshot(s => {
-      if (!s.metadata.fromCache) settled();
-      if (pending[key] > 0 || s.metadata.hasPendingWrites) return;
-      if (!s.exists && s.metadata.fromCache) return;
-      T[key] = s.exists ? { ...s.data() } : {};
-      cache(); softRender();
-    }, onErr));
-  });
-  unsubs.push(db.doc('config/main').onSnapshot(s => {
-    if (!s.exists || s.metadata.hasPendingWrites) return;
-    if (cfgDirty) return;
-    cfg = { ...cfg, ...JSON.parse(JSON.stringify(s.data())) };
-    cache(); softRender();
-  }, onErr));
-}
+function saveTick(key, id, val) { ops.push({ key, id, val }); keepQueue(); if (token) schedule(); else setStatus(); }
+function saveCfg() { cfgDirty = true; keepQueue(); cache(); if (token) schedule(); }
+async function subscribe() { if (ready || await verify()) await pull(); }
+setInterval(() => { if (!document.hidden && token) { if (ready) (ops.length || cfgDirty ? schedule(0) : pull()); else verify().then(ok => ok && pull()); } }, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) subscribe(); });
+addEventListener('online', subscribe);
 function softRender() { const a = document.activeElement; if (editing && a && a.classList.contains('edit')) return; if ($('#dlg').open) return; render(); }
 
 /* ---------- helpers ---------- */
 const on = (key, id) => !!(T[key] && T[key][id]);
-function setTick(key, id, val) { T[key] = { ...(T[key] || {}), [id]: val }; cache(); if (!readOnly) saveTick(key, id, val); }
+function setTick(key, id, val) { T[key] = { ...(T[key] || {}), [id]: val }; cache(); saveTick(key, id, val); }
 const dailyCount = (key, i) => Object.entries(T[key] || {}).filter(([id, v]) => v && id.startsWith(`k${i}_`)).length;
 const kidJobs = i => [{ ...cfg.special[dayIdx(P.now)], id: 'sp', special: true }, ...cfg.kids[i].tasks];
 function listOf(name) {
@@ -530,6 +571,7 @@ function notes(list) {
 function say(text) {
   if (!soundOn) return;
   try {
+    if (window.AndroidChart) { AndroidChart.speak(text); return; }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-AU'; u.pitch = 1.25; u.rate = 1;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
@@ -579,6 +621,19 @@ document.addEventListener('click', e => {
   else if (act === 'edit') { editing = !editing; render(); }
   else if (act === 'names') openDlg();
   else if (act === 'closedlg') { $('#dlg').close(); }
+  else if (act === 'github') { $('#gh-token').value = ''; $('#gh-msg').textContent = token ? 'This device is connected.' : ''; $('#ghd').showModal(); }
+  else if (act === 'ghclose') { $('#ghd').close(); }
+  else if (act === 'ghforget') { token = ''; ready = false; try { localStorage.removeItem('sparkle-gh-token'); } catch {} ghState = 'off'; warn = ''; setStatus(); $('#gh-msg').textContent = 'Disconnected. The token is removed from this device.'; }
+  else if (act === 'ghsave') {
+    const v = $('#gh-token').value.trim();
+    if (!v) { $('#gh-msg').textContent = 'Paste your token first.'; return; }
+    token = v; $('#gh-msg').textContent = 'Checking…';
+    verify().then(async ok => {
+      $('#gh-msg').textContent = ok ? 'Connected. This device now saves to GitHub.' : (warn || 'Can\'t reach GitHub. Check the internet connection and try again.');
+      if (ok) { try { localStorage.setItem('sparkle-gh-token', token); } catch {} $('#gh-token').value = ''; await pull(); schedule(500); }
+      else { token = ''; try { localStorage.removeItem('sparkle-gh-token'); } catch {} }
+    });
+  }
   else if (act === 'partyclose') { $('#party').hidden = true; }
   else if (act === 'job') {
     const i = +b.dataset.kid, id = b.dataset.id;
