@@ -18,6 +18,9 @@
    "k0_bed": true,
    "k0_sp": true,
    "k1_sp": true
+  },
+  "d-2026-11-06": {
+   "k0_dress": true
   }
  },
  "cfg": {
