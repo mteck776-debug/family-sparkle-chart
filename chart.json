@@ -24,7 +24,8 @@
    "k1_wash": true,
    "k0_wash": true,
    "k1_bed": true,
-   "k0_bed": true
+   "k0_bed": true,
+   "k0_toys": true
   }
  },
  "cfg": {
