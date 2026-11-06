@@ -40,6 +40,10 @@
    "k0_teeth": true,
    "k1_cup": true
   },
+  "d-2026-11-07": {
+   "k0_bed": true,
+   "k1_bed": true
+  },
   "w-2026-11-02": {
    "w41": true,
    "w42": true,
@@ -52,9 +56,6 @@
    "m6": true,
    "m10": true,
    "m14": true
-  },
-  "d-2026-11-07": {
-   "k0_bed": true
   }
  },
  "cfg": {
