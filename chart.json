@@ -51,7 +51,8 @@
    "d8": true,
    "d1": true,
    "d3": true,
-   "k1_sp": true
+   "k1_sp": true,
+   "d6": false
   },
   "w-2026-11-02": {
    "w41": true,
@@ -60,7 +61,8 @@
    "w44": true,
    "w54": true,
    "w55": true,
-   "w53": true
+   "w53": true,
+   "w52": true
   },
   "m-2026-11": {
    "m1": true,
