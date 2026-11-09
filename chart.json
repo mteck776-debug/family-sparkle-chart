@@ -1,91 +1,5 @@
 {
  "ticks": {
-  "d-2026-11-05": {
-   "d1": false,
-   "d2": true,
-   "d3": false,
-   "d4": true,
-   "d5": true,
-   "d6": false,
-   "d7": true,
-   "d8": true,
-   "k0_dress": true,
-   "k1_wash": true,
-   "k0_wash": true,
-   "k1_cup": true,
-   "k0_toys": true,
-   "k1_bed": true,
-   "k0_bed": true,
-   "k0_sp": true,
-   "k1_sp": true
-  },
-  "d-2026-11-06": {
-   "k0_dress": true,
-   "k1_wash": true,
-   "k0_wash": true,
-   "k1_bed": true,
-   "k0_bed": true,
-   "k0_toys": true,
-   "k0_sp": true,
-   "k1_toys": true,
-   "d4": true,
-   "d5": true,
-   "d8": true,
-   "d7": false,
-   "d6": false,
-   "d3": false,
-   "d2": false,
-   "d1": false,
-   "k0_plate": true,
-   "k0_teeth": true,
-   "k1_cup": true
-  },
-  "d-2026-11-07": {
-   "k0_bed": true,
-   "k1_bed": true,
-   "k0_dress": true,
-   "k0_wash": true,
-   "k1_wash": true,
-   "d2": true,
-   "d5": true,
-   "d8": true,
-   "d1": true,
-   "d3": true,
-   "k1_sp": true,
-   "d6": false,
-   "k0_sp": true,
-   "k1_cup": true,
-   "k0_teeth": true,
-   "k0_plate": true,
-   "k0_toys": true,
-   "k1_toys": true,
-   "d7": true,
-   "d4": true
-  },
-  "d-2026-11-08": {
-   "k0_dress": true,
-   "k0_wash": true,
-   "k0_teeth": true,
-   "k0_plate": true,
-   "k1_wash": true,
-   "k1_cup": true,
-   "k1_toys": true,
-   "k0_toys": true,
-   "k0_bed": true,
-   "k0_sp": true,
-   "k1_sp": true,
-   "k1_bed": true
-  },
-  "w-2026-11-02": {
-   "w41": true,
-   "w42": true,
-   "w43": true,
-   "w44": true,
-   "w54": true,
-   "w55": true,
-   "w53": true,
-   "w52": true
-  },
   "m-2026-11": {
    "m1": true,
    "m3": true,
@@ -128,7 +42,7 @@
      {
       "id": "plate",
       "e": "🍽️",
-      "t": "Plate on the bench"
+      "t": "Set the Table"
      }
     ]
    },
