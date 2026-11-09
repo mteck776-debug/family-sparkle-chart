@@ -1,5 +1,9 @@
 {
  "ticks": {
+  "d-2026-11-09": {
+   "k0_bed": true,
+   "k0_dress": true
+  },
   "m-2026-11": {
    "m1": true,
    "m3": true,
@@ -18,9 +22,6 @@
    "q9": true,
    "q10": true,
    "q12": true
-  },
-  "d-2026-11-09": {
-   "k0_bed": true
   }
  },
  "cfg": {
