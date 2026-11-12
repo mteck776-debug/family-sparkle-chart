@@ -15,6 +15,11 @@
    "k0_plate": true,
    "k0_toys": true
   },
+  "d-2026-11-12": {
+   "k1_wash": true,
+   "k1_toys": true,
+   "k1_xmw8tnc1g": true
+  },
   "m-2026-11": {
    "m1": true,
    "m3": true,
@@ -33,9 +38,6 @@
    "q9": true,
    "q10": true,
    "q12": true
-  },
-  "d-2026-11-12": {
-   "k1_wash": true
   }
  },
  "cfg": {
