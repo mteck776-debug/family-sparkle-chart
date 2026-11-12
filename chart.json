@@ -18,7 +18,12 @@
   "d-2026-11-12": {
    "k1_wash": true,
    "k1_toys": true,
-   "k1_xmw8tnc1g": true
+   "k1_xmw8tnc1g": true,
+   "k1_bed": true,
+   "k0_bed": true,
+   "k0_dress": true,
+   "k0_wash": true,
+   "k0_toys": true
   },
   "m-2026-11": {
    "m1": true,
