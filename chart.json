@@ -36,7 +36,9 @@
    "k1_wash": true,
    "k0_wash": true,
    "k1_bed": true,
-   "k1_toys": true
+   "k1_toys": true,
+   "k0_bed": true,
+   "k0_toys": true
   },
   "m-2026-11": {
    "m1": true,
