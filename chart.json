@@ -30,6 +30,12 @@
    "k0_sp": true,
    "k1_sp": true
   },
+  "d-2026-11-13": {
+   "k0_dress": true,
+   "k1_xmw8tnc1g": true,
+   "k1_wash": true,
+   "k0_wash": true
+  },
   "m-2026-11": {
    "m1": true,
    "m3": true,
@@ -48,9 +54,6 @@
    "q9": true,
    "q10": true,
    "q12": true
-  },
-  "d-2026-11-13": {
-   "k0_dress": true
   }
  },
  "cfg": {
