@@ -6,7 +6,8 @@
    "k0_bed": true,
    "k0_dress": true,
    "k0_wash": true,
-   "k0_toys": true
+   "k0_toys": true,
+   "k1_bed": true
   },
   "m-2026-11": {
    "m1": true,
