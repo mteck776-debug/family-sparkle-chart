@@ -1,20 +1,5 @@
 {
  "ticks": {
-  "d-2026-11-19": {
-   "k0_bed": true,
-   "k0_dress": true,
-   "k0_wash": true,
-   "k1_bed": true,
-   "k1_wash": true,
-   "k1_xmw8tnc1g": true,
-   "k0_toys": true,
-   "k0_plate": true,
-   "k0_sp": true,
-   "k1_sp": true,
-   "k1_toys": true,
-   "k0_teeth": true,
-   "k1_cup": true
-  },
   "m-2026-11": {
    "m1": true,
    "m3": true,
@@ -33,6 +18,10 @@
    "q9": true,
    "q10": true,
    "q12": true
+  },
+  "d-2026-11-26": {
+   "k0_sp": true,
+   "k1_sp": true
   }
  },
  "cfg": {
